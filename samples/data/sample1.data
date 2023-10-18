@@ -1,0 +1,9 @@
+*STUDENT_LIST*
+    students
+        name *Bence*
+        age 18
+        grade 50
+        *
+        name *Joe*
+        age 17
+        grade 52
