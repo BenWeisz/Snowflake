@@ -1,1 +1,0 @@
-gcc snowflake.c -o snowflake
