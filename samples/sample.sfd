@@ -1,0 +1,9 @@
+*STUDENT_LIST*
+    students
+        name *Ben*
+        gpa *0.0*
+        num_courses *10*
+        *
+        name *John*
+        gpa *100.0*
+        num_courses *5*
