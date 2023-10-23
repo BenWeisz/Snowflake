@@ -1,7 +1,0 @@
-STUDENT
-    name STR *1024*
-    age U32 *18*
-    grade U32 *0*
-
-*STUDENT_LIST*
-    students ARRAY *STUDENT*
