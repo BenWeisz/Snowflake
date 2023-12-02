@@ -2,6 +2,5 @@ STUDENT
     name STR *256*
     gpa F32 *0.0*
     num_courses U32 *0*
-
 *STUDENT_LIST*
     students ARRAY *STUDENT*

@@ -1,4 +1,4 @@
 .vscode/
-snowflake.c
-snowflake.h
-snowflake.ph
+build/
+debug
+CMakelists.txt
