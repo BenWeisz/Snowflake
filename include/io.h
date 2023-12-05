@@ -12,5 +12,6 @@ typedef struct SF_FILE {
 } SF_FILE;
 
 SF_FILE* sf_read_file(const char* path);
+void sf_close_file(SF_FILE* sf_file);
 
 #endif  // IO_H

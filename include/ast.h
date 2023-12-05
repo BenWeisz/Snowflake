@@ -16,6 +16,7 @@
 #define _SF_MAX_KEY_LEN 128
 #define _SF_MAX_VALUE_LEN 1024
 #define _SF_LINE_BUFFER_SIZE 1024 * 1024 // If this is too small you can always increase this
+#define _SF_FREE_STACK_SIZE 1024 * 1024
 
 typedef struct _SF_AST_NODE {
     char type;
@@ -28,7 +29,7 @@ typedef struct _SF_AST_NODE {
 } _SF_AST_NODE;
 
 _SF_AST_NODE* _sf_build_ast(const SF_FILE* sf_file);
-void _sf_free_ast(const _SF_AST_NODE* sf_anode);
+void _sf_free_ast(_SF_AST_NODE* sf_anode);
 
 _SF_AST_NODE* _sf_new_ast_node();
 

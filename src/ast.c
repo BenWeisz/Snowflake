@@ -116,8 +116,46 @@ _SF_AST_NODE* _sf_build_ast(const SF_FILE* sf_file) {
     return root_node;
 }
 
-void _sf_free_ast(const _SF_AST_NODE* sf_anode) {
-    
+void _sf_free_ast(_SF_AST_NODE* sf_anode) {
+    if (sf_anode == NULL)
+        return;
+
+    _SF_AST_NODE** node_stack = (_SF_AST_NODE**)malloc(sizeof(_SF_AST_NODE*) * _SF_FREE_STACK_SIZE);
+    if (node_stack == NULL) {
+        LOG_ERROR("ERROR: Failed to allocate memory for free stack\n");
+        return;
+    }
+
+    int node_stack_size = 1;
+    node_stack[node_stack_size - 1] = sf_anode;
+
+    while (node_stack_size != 0) {
+        _SF_AST_NODE* curr_node = node_stack[node_stack_size - 1];
+        if (curr_node->child != NULL) {
+            if (curr_node->child->child == NULL && curr_node->child->sibling == NULL) {
+                free(curr_node->child);
+                curr_node->child = NULL;
+                node_stack_size--;
+            }
+            else {
+                node_stack_size++;
+                node_stack[node_stack_size - 1] = curr_node->child;
+            }
+        }
+        else if (curr_node->sibling != NULL) {
+            if (curr_node->sibling->child == NULL && curr_node->sibling->sibling == NULL) {
+                free(curr_node->sibling);
+                curr_node->sibling = NULL;
+                node_stack_size--;
+            } else {
+                node_stack_size++;
+                node_stack[node_stack_size - 1] = curr_node->sibling;
+            }
+        }
+    }
+
+    free(sf_anode);
+    free(node_stack);
 }
 
 _SF_AST_NODE* _sf_new_ast_node() {
@@ -142,22 +180,31 @@ _SF_AST_NODE* _sf_new_ast_node() {
 }
 
 int _sf_parse_line(_SF_AST_NODE* sf_anode, char* line_buffer) {
-    char* curr_token = strtok(line_buffer, " \t");
-    
+    char* key_token = strtok(line_buffer, " \t");
+
     // Copy out the key str
-    strcpy(sf_anode->key, curr_token);
+    strcpy(sf_anode->key, key_token);
 
     // Try to get the value str
-    curr_token = strtok(NULL, " \t");
-    if (curr_token != NULL) {
-        strcpy(sf_anode->value, curr_token);
+    char* value_token = strtok(NULL, " \t");
+    if (value_token != NULL) {
+        int value_token_len = strlen(value_token);
+        if (value_token_len < 2 || value_token[0] != '*' || value_token[value_token_len - 1] != '*') {
+            LOG_ERROR("ERROR: Line %d: Values must be wrapped in *\n");
+            return 1;
+        }
+
+        strncpy(sf_anode->value, value_token + 1, value_token_len - 2);
+        sf_anode->value[value_token_len - 2] = '\0';
         sf_anode->type = _SF_AST_NODE_TYPE_ATTRIB;
-    } 
-    else {
+    } else {
         if (_sf_is_snowflake_line(sf_anode->key) == 1) {
             sf_anode->type = _SF_AST_NODE_TYPE_SNOWFLAKE;
-        }
-        else if (_sf_is_array_object_line(sf_anode->key) == 1) {
+            
+            int key_token_len = strlen(key_token);
+            strncpy(sf_anode->key, key_token + 1, key_token_len - 2);
+            sf_anode->key[key_token_len - 2] = '\0';
+        } else if (_sf_is_array_object_line(sf_anode->key) == 1) {
             sf_anode->type = _SF_AST_NODE_TYPE_ARRAY_OBJECT;
         } else {
             LOG_ERROR("ERROR: Line %d uses an invalid identifier.\n", sf_anode->line);

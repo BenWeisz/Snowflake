@@ -41,3 +41,8 @@ SF_FILE* sf_read_file(const char* path) {
 
     return sf_file;
 }
+
+void sf_close_file(SF_FILE* sf_file) {
+    free(sf_file->data);
+    free(sf_file);
+}
